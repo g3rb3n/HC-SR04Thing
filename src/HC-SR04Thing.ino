@@ -12,8 +12,6 @@ using namespace g3rb3n;
 Thing thing;
 HCSR04 sensor(D8, D7);
 
-bool motion = false;
-
 void setup()
 {
   Serial.begin(230400);
@@ -29,9 +27,11 @@ void setup()
     digitalWrite(BUILTIN_LED, OFF);
   });
 
-  thing.addSensor(String("sensor/distance/") + thing.clientId(), 1000, [](Value& value){
+  thing.addSensor(thing.clientId() + "/hcsr04/distance", 1000, [](Value& value){
     digitalWrite(BUILTIN_LED, ON);
-    value = sensor.meters();
+    float meters = sensor.meters();
+    value = meters;
+    Serial.println(meters * 100);
     digitalWrite(BUILTIN_LED, OFF);
   });
 
