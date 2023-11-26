@@ -7,38 +7,40 @@
 #define ON 0
 #define OFF 1
 
-using namespace g3rb3n;
+using namespace ootb;
 
 Thing thing;
 HCSR04 sensor(D8, D7);
 
 void setup()
 {
-  Serial.begin(230400);
-  Serial.println();
+    Serial.begin(230400);
+    Serial.println();
 
-  Serial.println("ClientID:" + thing.clientId());
+    Serial.println("ClientID:" + thing.clientId());
 
-  pinMode(BUILTIN_LED, OUTPUT);
+    pinMode(BUILTIN_LED, OUTPUT);
 
-  thing.onStateChange([](const String& msg){
-    digitalWrite(BUILTIN_LED, ON);
-    Serial.println(msg);
-    digitalWrite(BUILTIN_LED, OFF);
-  });
+    thing.onStateChange([](const String &msg)
+    {
+        digitalWrite(BUILTIN_LED, ON);
+        Serial.println(msg);
+        digitalWrite(BUILTIN_LED, OFF);
+    });
+    String topic = "things/" + thing.clientId() + "/hcsr04/distance";
+    thing.addSensor(topic, 1000, [](Value &value)
+    {
+        digitalWrite(BUILTIN_LED, ON);
+        float meters = sensor.meters();
+        value = meters;
+        Serial.println(meters * 100);
+        digitalWrite(BUILTIN_LED, OFF);
+    });
 
-  thing.addSensor(thing.clientId() + "/hcsr04/distance", 1000, [](Value& value){
-    digitalWrite(BUILTIN_LED, ON);
-    float meters = sensor.meters();
-    value = meters;
-    Serial.println(meters * 100);
-    digitalWrite(BUILTIN_LED, OFF);
-  });
-
-  thing.begin();
+    thing.begin();
 }
 
 void loop()
 {
-  thing.handle();
+    thing.handle();
 }
